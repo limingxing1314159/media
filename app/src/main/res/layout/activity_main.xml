@@ -62,20 +62,12 @@
                 android:layout_margin="5dp"/>
         </LinearLayout>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="50dp">
+
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:text="登录"/>
-        <Button
-            android:layout_marginLeft="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="注册"/>
-        </LinearLayout>
+
     </LinearLayout>
     </LinearLayout>

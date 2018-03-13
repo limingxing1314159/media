@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">时代传媒</string>
+    <string name="now_refresh">刷新中…</string>
+    <string name="no_more">没有更多数据了…</string>
+    <string name="load_more">加载更多数据…</string>
+    <string name="user_name">用户名</string>
+    <string name="password">密码</string>
+    <string name="user_name_connot_be_empty">帐号不能为空</string>
+    <string name="password_connot_be_empty">密码不能为空</string>
+    <string name="login">登录</string>
+    <string name="user_profile">个人资料</string>
+    <string name="save">保存</string>
+</resources>

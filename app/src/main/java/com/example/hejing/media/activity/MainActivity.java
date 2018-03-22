@@ -3,6 +3,8 @@ package com.example.hejing.media.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -10,19 +12,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.hejing.media.I;
-import com.example.hejing.media.MediaApplication;
 import com.example.hejing.media.R;
-import com.example.hejing.media.bean.Result;
-import com.example.hejing.media.bean.User;
-import com.example.hejing.media.dao.SharePrefrenceUtils;
-import com.example.hejing.media.dao.UserDao;
-import com.example.hejing.media.okhttputils.CommonUtil;
 import com.example.hejing.media.okhttputils.L;
 import com.example.hejing.media.okhttputils.MFGT;
-import com.example.hejing.media.okhttputils.NetDao;
 import com.example.hejing.media.okhttputils.OkHttpUtils;
-import com.example.hejing.media.okhttputils.ResultUtils;
-;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -42,6 +40,8 @@ public class MainActivity extends BaseActivity {
     String name;
     String password;
     MainActivity mContent;
+
+    private MyHandler myhandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +66,52 @@ public class MainActivity extends BaseActivity {
 
     }
 
+    //弱引用，防止内存泄露
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        public MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (mActivity.get() == null) {
+                return;
+            }
+            mActivity.get().updateUIThread(msg);
+        }
+    }
+
+    //配合子线程更新UI线程
+    private void updateUIThread(Message msg){
+        Bundle bundle = new Bundle();
+        bundle = msg.getData();
+        String str = bundle.getString("result");
+        L.e(TAG,"str="+str);
+        try {
+            JSONObject jsonObject = new JSONObject(str);
+            L.e(TAG,"jsonObject="+jsonObject);
+            int code = jsonObject.getInt("code");
+            if (code == 1){
+                Toast.makeText(mContent, "登录成功", Toast.LENGTH_SHORT).show();
+                MFGT.gotoLogin(mContent);
+                MFGT.finish(mContent);
+            }else if (code == 0){
+                Toast.makeText(mContent, "用户名或密码有误，请重新输入", Toast.LENGTH_SHORT).show();
+            }else if (code == -1){
+                Toast.makeText(mContent,"登录信息已过期，请重新申请",Toast.LENGTH_LONG).show();
+            }else {
+                Toast.makeText(mContent, "登录失败", Toast.LENGTH_LONG).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     @OnClick(R.id.loginButton)
     public void onViewClicked(View view) {
         switch (view.getId()){
@@ -76,70 +122,41 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void checkedInput(){
+    private void checkedInput() {
         name = loginName.getText().toString().trim();
         password = loginPassword.getText().toString().trim();
+        L.e(TAG,"name="+name+",password="+password);
         if (TextUtils.isEmpty(name)){
-            Toast.makeText(mContent,"用户名不能为空",Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContent, "用户名不能为空", Toast.LENGTH_LONG).show();
             loginName.requestFocus();
             return;
         }else if(TextUtils.isEmpty(password)){
-            Toast.makeText(mContent,"密码不能为空",Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContent, "密码不能为空", Toast.LENGTH_LONG).show();
             loginPassword.requestFocus();
             return;
         }
         login();
     }
 
+
     private void login() {
         final ProgressDialog pd = new ProgressDialog(mContent);
         pd.setMessage(getResources().getString(R.string.logining));
         pd.show();
-        L.e(TAG,"name="+name+",password="+password);
-        NetDao.login(mContent, name, password, new OkHttpUtils.OnCompleteListener<String>() {
-            @Override
-            public void onSuccess(String s) {
-                Result result = ResultUtils.getResultFromJson(s,User.class);
-                L.e(TAG,"s="+s);
-                L.e(TAG,"result = "+ result);
-                if (result == null){
-                    Toast.makeText(mContent,"登录失败，无此用户",Toast.LENGTH_SHORT).show();
-                }else {
-                    if (result.isMsg()){
-                        User user = (User) result.getData();
-                        L.e(TAG,"User = "+user);
-                        UserDao dao = new UserDao(mContent);
-                        boolean isSuccess = dao.saveUser(user);
-                        if (isSuccess){
-                            SharePrefrenceUtils.getInstance(mContent).saveUser(user.getName());
-                            MediaApplication.setUser(user);
-                            Toast.makeText(mContent,"登录成功",Toast.LENGTH_LONG).show();
-                            MFGT.gotoLogin(mContent);
-                            MFGT.finish(mContent);
-                        }else {
-                            Toast.makeText(mContent,"登录失败，用户名错误",Toast.LENGTH_SHORT).show();
-                        }
-                    }else {
-                        if (result.getCode() == I.MSG_LOGIN_UNKNOW_USER){
-                            Toast.makeText(mContent,"，登录失败，未知用户",Toast.LENGTH_SHORT).show();
-                        }else if (result.getCode() == I.MSG_LOGIN_ERROR_PASSWORD){
-                            Toast.makeText(mContent,"登录失败，密码错误",Toast.LENGTH_SHORT).show();
-                        }else {
-                            Toast.makeText(mContent,"登录失败",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-                pd.dismiss();
 
-            }
-
+        //开启访问数据库线程
+        new Thread(new Runnable() {
             @Override
-            public void onError(String error) {
-                pd.dismiss();
-                CommonUtil.showLongToast(error);
-                L.e(TAG,"error="+error);
+            public void run() {
+                String string = OkHttpUtils.LoginByPost(name,password);
+                Bundle bundle = new Bundle();
+                bundle.putString("result",string);
+                Message msg = new Message();
+                msg.setData(bundle);
+                myhandler.sendMessage(msg);
             }
-        });
+        }).start();
+        pd.dismiss();
     }
 
     @Override

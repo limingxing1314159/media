@@ -15,25 +15,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 public class ResultUtils {
+    public static final String TAG = ResultUtils.class.getSimpleName();
+
     public static <T> Result getResultFromJson(String jsonStr, Class<T> clazz){
+        L.e(TAG,"jsonStr="+jsonStr);
         Result result = new Result();
+        L.e(TAG,"result="+result);
         try {
-            if(jsonStr==null || jsonStr.isEmpty() || jsonStr.length()<3)return null;
+            if(jsonStr==null || jsonStr.isEmpty() || jsonStr.length()<3) return null;
+
             JSONObject jsonObject = new JSONObject(jsonStr);
-            if(!jsonObject.isNull("Code")) {
-                result.setCode(jsonObject.getInt("Code"));
-            }else if(!jsonObject.isNull("msg")){
-                result.setCode(jsonObject.getInt("msg"));
-            }
-            if(!jsonObject.isNull("Msg")) {
-                result.setMsg(jsonObject.getBoolean("Msg"));
+            L.e(TAG,"jsonObject="+jsonObject);
+            if(!jsonObject.isNull("code")) {
+                result.setCode(jsonObject.getInt("code"));
+
             }else if(!jsonObject.isNull("result")){
-                result.setMsg(jsonObject.getBoolean("result"));
+                result.setCode(jsonObject.getInt("result"));
             }
-            if(!jsonObject.isNull("Data")) {
-                JSONObject jsonRetData = jsonObject.getJSONObject("Data");
+            if(!jsonObject.isNull("msg")) {
+                result.setMsg(jsonObject.getString("msg"));
+            }else if(!jsonObject.isNull("result")){
+                result.setMsg(jsonObject.getString("result"));
+            }
+            if (!jsonObject.isNull("token")){
+                result.setToken(jsonObject.getString("token"));
+            }else if (!jsonObject.isNull("result")){
+                result.setToken(jsonObject.getString("result"));
+            }
+            if(!jsonObject.isNull("data")) {
+                JSONObject jsonRetData = jsonObject.getJSONObject("data");
                 if (jsonRetData != null) {
                     Log.e("Utils", "jsonRetData=" + jsonRetData);
                     String date;
@@ -41,13 +52,13 @@ public class ResultUtils {
                         date = URLDecoder.decode(jsonRetData.toString(), I.UTF_8);
                         Log.e("Utils", "jsonRetData=" + date);
                         T t = new Gson().fromJson(date, clazz);
-                        result.setData(t);
+                        result.setData((String) t);
                         return result;
 
                     } catch (UnsupportedEncodingException e1) {
                         e1.printStackTrace();
                         T t = new Gson().fromJson(jsonRetData.toString(), clazz);
-                        result.setData(t);
+                        result.setData((String) t);
                         return result;
                     }
                 }
@@ -59,13 +70,13 @@ public class ResultUtils {
                         date = URLDecoder.decode(jsonObject.toString(), I.UTF_8);
                         Log.e("Utils", "jsonRetData=" + date);
                         T t = new Gson().fromJson(date, clazz);
-                        result.setData(t);
+                        result.setData((String) t);
                         return result;
 
                     } catch (UnsupportedEncodingException e1) {
                         e1.printStackTrace();
                         T t = new Gson().fromJson(jsonObject.toString(), clazz);
-                        result.setData(t);
+                        result.setData((String) t);
                         return result;
                     }
                 }
@@ -81,20 +92,28 @@ public class ResultUtils {
         Result result = new Result();
         Log.e("Utils","jsonStr="+jsonStr);
         try {
-            if(jsonStr==null || jsonStr.isEmpty() || jsonStr.length()<3)return null;
+            if(jsonStr==null || jsonStr.isEmpty() || jsonStr.length()<3){
+                return null;
+            }
             JSONObject jsonObject = new JSONObject(jsonStr);
-            if(!jsonObject.isNull("Code")) {
-                result.setCode(jsonObject.getInt("Code"));
-            }else if(!jsonObject.isNull("msg")){
-                result.setCode(jsonObject.getInt("msg"));
-            }
-            if(!jsonObject.isNull("Msg")) {
-                result.setMsg(jsonObject.getBoolean("Msg"));
+            L.e(TAG,"jsonObject="+jsonObject);
+            if(!jsonObject.isNull("code")) {
+                result.setCode(jsonObject.getInt("code"));
             }else if(!jsonObject.isNull("result")){
-                result.setMsg(jsonObject.getBoolean("result"));
+                result.setCode(jsonObject.getInt("result"));
             }
-            if(!jsonObject.isNull("Data")) {
-                JSONArray array = jsonObject.getJSONArray("Data");
+            if(!jsonObject.isNull("msg")) {
+                result.setMsg(jsonObject.getString("msg"));
+            }else if(!jsonObject.isNull("result")){
+                result.setMsg(jsonObject.getString("result"));
+            }
+            if (!jsonObject.isNull("token")){
+                result.setToken(jsonObject.getString("token"));
+            }else if (!jsonObject.isNull("result")){
+                result.setToken(jsonObject.getString("result"));
+            }
+            if(!jsonObject.isNull("data")) {
+                JSONArray array = jsonObject.getJSONArray("data");
                 if (array != null) {
                     List<T> list = new ArrayList<T>();
                     for (int i = 0; i < array.length(); i++) {
@@ -102,7 +121,7 @@ public class ResultUtils {
                         T ga = new Gson().fromJson(jsonGroupAvatar.toString(), clazz);
                         list.add(ga);
                     }
-                    result.setData(list);
+                    result.setData(String.valueOf(list));
                     return result;
                 }
             }else{
@@ -114,7 +133,7 @@ public class ResultUtils {
                         T ga = new Gson().fromJson(jsonGroupAvatar.toString(), clazz);
                         list.add(ga);
                     }
-                    result.setData(list);
+                    result.setData(String.valueOf(list));
                     return result;
                 }
             }

@@ -1,21 +1,20 @@
 package com.example.hejing.media.bean;
 
-import java.io.Serializable;
 
-public class Result implements Serializable {
-	private int code = -1;
-	private boolean msg;
+public class Result {
+	private int code;
+	private String msg;
+	private String token;
 	private Object data;
+
 	public Result() {
 	}
-	public Result(boolean msg, int code){
-		this.msg = msg;
-		this.code = code;
-	}
-	public Result(int code, boolean msg, Object data) {
+
+	public Result(int code, String msg, String token,Object data) {
 		super();
 		this.code = code;
 		this.msg = msg;
+		this.token = token;
 		this.data = data;
 	}
 	public int getCode() {
@@ -24,20 +23,22 @@ public class Result implements Serializable {
 	public void setCode(int code) {
 		this.code = code;
 	}
-	public boolean isMsg() {
+	public String getMsg() {
 		return msg;
 	}
-	public void setMsg(boolean msg) {
+	public void setMsg(String msg) {
 		this.msg = msg;
 	}
+	public String getToken(){return token;}
+	public void setToken(String token){this.token = token;}
 	public Object getData() {
 		return data;
 	}
-	public void setData(Object data) {
+	public void setData(String data) {
 		this.data = data;
 	}
 	@Override
 	public String toString() {
-		return "Result [code=" + code + ", msg=" + msg + ", data=" + data + "]";
+		return "Result [code=" + code + ", msg=" + msg + ", token=" + token + " , data=" + data + "]";
 	}
 }

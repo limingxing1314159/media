@@ -36,29 +36,4 @@ public class DBManager {
         }
         return false;
     }
-
-    public synchronized User getUser(String username){
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String sql = "select * from " + UserDao.USER_TABLE_NAME + " where "
-                + UserDao.USER_COLUMN_NAME + " =?";
-        User user = null;
-        Cursor cursor = db.rawQuery(sql,new String[]{username});
-        if (cursor.moveToNext()){
-            user = new User();
-            user.setName(username);
-            return user;
-        }
-        return user;
-    }
-
-    public synchronized boolean updateUser(User user){
-        int result = -1;
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String sql = UserDao.USER_COLUMN_NAME + "=?";
-        ContentValues values = new ContentValues();
-        if (db.isOpen()){
-            result = db.update(UserDao.USER_TABLE_NAME,values,sql,new String[]{user.getName()});
-        }
-        return result>0;
-    }
 }

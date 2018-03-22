@@ -37,10 +37,11 @@ public class MediaApplication extends Application{
         MediaApplication.name = name;
     }
 
-    public static User getUser(){
+    public static User getUser() {
         return user;
     }
-    public static void setUser(User user){
+
+    public static void setUser(User user) {
         MediaApplication.user = user;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.example.hejing.media.I;
 import com.example.hejing.media.R;
+import com.example.hejing.media.activity.HomeActivity;
 import com.example.hejing.media.activity.MainActivity;
 
 /**
@@ -20,7 +21,7 @@ public class MFGT {
 
     public static void gotoLogin(Activity context){
         Intent intent = new Intent();
-        intent.setClass(context,MainActivity.class);
+        intent.setClass(context,HomeActivity.class);
         startActivityForResult(context,intent, I.REQUEST_CODE_LOGIN);
     }
 

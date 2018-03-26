@@ -224,6 +224,7 @@ public class OkHttpUtils<T> {
 
     public OkHttpUtils<T> setRequestUrl(String request) {
         mUrl = new StringBuilder(I.SERVER_ROOT);
+        L.e("OkHttpUtils","url="+mUrl);
         mUrl.append(request);
         return this;
     }
@@ -473,7 +474,6 @@ public class OkHttpUtils<T> {
 
     private static String LOGIN_URL = "http://adv-app.wesogou.com/login";
     public static String LoginByPost(String name,String password){
-        Log.d(MainActivity.TAG,"启动登录线程");
         String msg = "";
         try {
             URL url = new URL(LOGIN_URL);
@@ -483,8 +483,8 @@ public class OkHttpUtils<T> {
             conn.setRequestMethod("POST");
 
             //设置超时信息
-            conn.setReadTimeout(5000);
-            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(2000);
+            conn.setConnectTimeout(2000);
 
             //设置允许输入
             conn.setDoInput(true);

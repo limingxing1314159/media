@@ -22,19 +22,19 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import butterknife.OnClick;
 
 
 public class MainActivity extends BaseActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
-    @InjectView(R.id.loginName)
+    @Bind(R.id.loginName)
     EditText loginName;
-    @InjectView(R.id.loginPassword)
+    @Bind(R.id.loginPassword)
     EditText loginPassword;
-    @InjectView(R.id.loginButton)
+    @Bind(R.id.loginButton)
     Button loginbutton;
 
     String name;
@@ -46,7 +46,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         mContent=this;
         super.onCreate(savedInstanceState);
     }
@@ -92,6 +92,8 @@ public class MainActivity extends BaseActivity {
         try {
             JSONObject jsonObject = new JSONObject(str);
             L.e(TAG,"jsonObject="+jsonObject);
+            String token = jsonObject.getString("token");
+            L.e(TAG,"token="+token);
             int code = jsonObject.getInt("code");
             if (code == 1){
                 Toast.makeText(mContent, "登录成功", Toast.LENGTH_SHORT).show();
